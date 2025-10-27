@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Navbar from '../components/Navbar';
 import RegisterForm from '../components/RegisterForm';
 import OtpForm from '../components/OtpForm';
+import LoginForm from '../components/LoginForm';
 
 export default function LandingPage() {
   const [modalView, setModalView] = useState('none');
@@ -20,7 +21,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-gray-900 text-white">
       <Navbar
         onRegisterClick={() => setModalView('register')}
-        onLoginClick={() => alert('Login modal not implemented yet.')}
+        onLoginClick={() => setModalView('login')}
       />
 
       <main className="container mx-auto px-6 pt-24 text-center">
@@ -48,6 +49,8 @@ export default function LandingPage() {
       {modalView === 'otp' && (
         <OtpForm onClose={closeModals} email={userEmail} />
       )}
+
+      {modalView === 'login' && <LoginForm onClose={closeModals} />}
     </div>
   );
 }
