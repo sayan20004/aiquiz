@@ -1,11 +1,16 @@
 import asyncHandler from 'express-async-handler';
-// Use require for pdf-parse
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const pdf = require('pdf-parse');
-// ---
+// Import pdfjs-dist using the .mjs build for ES Modules
+import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf.mjs';
 import Quiz from '../models/quizModel.js';
 import { generateQuizFromPDFText } from '../utils/aiGenerator.js';
+
+// --- Important: Worker setup ---
+// pdfjs-dist needs a worker thread. In Node.js, setting this path can sometimes be needed.
+// You might need to adjust the path depending on your project structure.
+// This line might be better placed ONCE globally in your server.js, but let's try it here first.
+// If you still get errors about workers, move this line to the top of server.js
+pdfjsLib.GlobalWorkerOptions.workerSrc = `pdfjs-dist/build/pdf.worker.mjs`;
+// ---
 
 const generateQuiz = asyncHandler(async (req, res) => {
   const { topic, questionCount, difficulty } = req.body;
@@ -21,20 +26,35 @@ const generateQuiz = asyncHandler(async (req, res) => {
     throw new Error('Missing quiz parameters.');
   }
 
-  let pdfText;
+  let pdfText = '';
   try {
-    // Call pdf directly
-    const data = await pdf(req.file.buffer);
-    pdfText = data.text;
+    // Use pdfjs-dist to load and parse the PDF data
+    const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(req.file.buffer) });
+    const pdf = await loadingTask.promise;
+    const numPages = pdf.numPages;
+    let fullText = '';
+
+    // Loop through each page and extract text
+    for (let i = 1; i <= numPages; i++) {
+      const page = await pdf.getPage(i);
+      const textContent = await page.getTextContent();
+      // Join the text items on the page
+      const pageText = textContent.items.map((item) => item.str).join(' ');
+      fullText += pageText + '\n'; // Add newline between pages
+    }
+    pdfText = fullText;
   } catch (error) {
-    console.error('Error parsing PDF:', error);
+    console.error('Error parsing PDF with pdfjs-dist:', error);
     res.status(500);
     throw new Error('Failed to read PDF content.');
   }
 
-  if (!pdfText) {
+  if (!pdfText || pdfText.trim().length === 0) {
+    // Check if any text was actually extracted
     res.status(400);
-    throw new Error('Could not extract text from PDF.');
+    throw new Error(
+      'Could not extract text from PDF. The file might be image-based or empty.'
+    );
   }
 
   // --- AI Generation and Quiz Creation (Keep the rest the same) ---
