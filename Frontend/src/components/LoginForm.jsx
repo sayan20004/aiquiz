@@ -36,6 +36,9 @@ export default function LoginForm({ onClose }) {
       }
 
       toast.success(data.message || 'Login successful!');
+      
+      localStorage.setItem('userToken', data.token);
+      
       navigate('/dashboard');
     } catch (error) {
       toast.dismiss();

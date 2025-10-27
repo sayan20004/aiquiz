@@ -28,6 +28,9 @@ export default function OtpForm({ onClose, email }) {
       }
 
       toast.success(data.message || 'Verification successful!');
+      
+      localStorage.setItem('userToken', data.token);
+      
       navigate('/dashboard');
     } catch (error) {
       toast.dismiss();
@@ -69,9 +72,6 @@ export default function OtpForm({ onClose, email }) {
           {isLoading ? 'Verifying...' : 'Verify Account'}
         </button>
       </form>
-      <p className="text-xs text-gray-500 text-center mt-4">
-        Didn't get a code? Click to resend. (Resend logic not implemented)
-      </p>
     </Modal>
   );
 }
