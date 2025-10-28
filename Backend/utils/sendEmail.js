@@ -1,15 +1,20 @@
 import nodemailer from 'nodemailer';
 import 'dotenv/config';
 
-
+// Try using Port 587 with TLS
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com', // Gmail's SMTP server
-  port: 465, // Port for SSL
-  secure: true, // Use SSL
+  port: 587, // Port for TLS
+  secure: false, // false for TLS
   auth: {
     user: process.env.EMAIL_USER, // Your email from .env
     pass: process.env.EMAIL_PASS, // Your app password from .env
   },
+  tls: {
+    // Do not fail on invalid certs (less secure, but sometimes needed on cloud platforms)
+    // Consider removing this if it connects without it
+     rejectUnauthorized: false 
+  }
 });
 
 /**
@@ -22,7 +27,7 @@ const transporter = nodemailer.createTransport({
 const sendEmail = async ({ to, subject, text, html }) => {
   try {
     const info = await transporter.sendMail({
-      from: `"Your App Name" <${process.env.EMAIL_USER}>`, // sender address
+      from: `"AI Quiz App" <${process.env.EMAIL_USER}>`, // sender address
       to: to, // list of receivers
       subject: subject, // Subject line
       text: text, // plain text body
@@ -32,8 +37,10 @@ const sendEmail = async ({ to, subject, text, html }) => {
     console.log(`Email sent: ${info.messageId}`);
     return info;
   } catch (error) {
-    console.error('Error sending email:', error);
-    throw new Error('Email could not be sent.');
+    // Log the detailed error on the server
+    console.error('Error sending email:', error); 
+    // Throw a generic error to the client/caller
+    throw new Error('Email could not be sent.'); 
   }
 };
 
