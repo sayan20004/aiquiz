@@ -1,21 +1,15 @@
 import nodemailer from 'nodemailer';
 import 'dotenv/config';
 
-// Try using Port 587 with TLS
+// --- Use service: 'gmail' configuration ---
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com', // Gmail's SMTP server
-  port: 587, // Port for TLS
-  secure: false, // false for TLS
+  service: 'gmail', // Use the built-in Gmail service settings
   auth: {
     user: process.env.EMAIL_USER, // Your email from .env
     pass: process.env.EMAIL_PASS, // Your app password from .env
   },
-  tls: {
-    // Do not fail on invalid certs (less secure, but sometimes needed on cloud platforms)
-    // Consider removing this if it connects without it
-     rejectUnauthorized: false 
-  }
 });
+// ---
 
 /**
  * Sends an email.
