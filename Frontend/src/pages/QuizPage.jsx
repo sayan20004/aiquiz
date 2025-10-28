@@ -3,6 +3,9 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 
+// Get the base URL from environment variables
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
 export default function QuizPage() {
   const { quizId } = useParams();
   const navigate = useNavigate();
@@ -22,7 +25,9 @@ export default function QuizPage() {
       }
 
       try {
-        const res = await axios.get(`/api/quiz/${quizId}`, {
+        // --- Use full URL ---
+        const apiUrl = `${API_BASE_URL}/api/quiz/${quizId}`;
+        const res = await axios.get(apiUrl, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setQuiz(res.data);
@@ -46,7 +51,7 @@ export default function QuizPage() {
   };
 
   const handleNext = () => {
-    if (currentQuestionIndex < quiz.questions.length - 1) {
+    if (quiz && currentQuestionIndex < quiz.questions.length - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
     }
   };
@@ -58,6 +63,8 @@ export default function QuizPage() {
   };
 
   const handleSubmit = async () => {
+    if (!quiz) return;
+
     const unanswered = quiz.questions.filter(
       (q) => !selectedAnswers[q._id]
     );
@@ -73,8 +80,10 @@ export default function QuizPage() {
     const token = localStorage.getItem('userToken');
 
     try {
+      // --- Use full URL ---
+      const apiUrl = `${API_BASE_URL}/api/quiz/${quizId}/submit`;
       const res = await axios.post(
-        `/api/quiz/${quizId}/submit`,
+        apiUrl,
         { answers: selectedAnswers },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -102,13 +111,29 @@ export default function QuizPage() {
   if (!quiz) {
     return (
       <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
-        <h1 className="text-3xl">Quiz not found.</h1>
+        <h1 className="text-3xl">Quiz not found or already completed.</h1>
+         <Link to="/dashboard" className="text-indigo-400 hover:text-indigo-300 ml-4">
+            Go to Dashboard
+         </Link>
       </div>
     );
   }
 
   const currentQuestion = quiz.questions[currentQuestionIndex];
-  const selectedOption = selectedAnswers[currentQuestion._id];
+  const selectedOption = currentQuestion ? selectedAnswers[currentQuestion._id] : undefined;
+
+
+  if (!currentQuestion) {
+     return (
+       <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
+         <h1 className="text-3xl">Error loading question.</h1>
+         <Link to="/dashboard" className="text-indigo-400 hover:text-indigo-300 ml-4">
+            Go to Dashboard
+         </Link>
+       </div>
+     );
+  }
+
 
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-6">

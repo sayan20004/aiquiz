@@ -3,6 +3,9 @@ import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 
+// Get the base URL from environment variables
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
 export default function DashboardPage() {
   const [topic, setTopic] = useState('');
   const [difficulty, setDifficulty] = useState('medium');
@@ -44,7 +47,9 @@ export default function DashboardPage() {
     formData.append('questionCount', questionCount);
 
     try {
-      const res = await axios.post('/api/quiz/generate', formData, {
+      // --- Use full URL ---
+      const apiUrl = `${API_BASE_URL}/api/quiz/generate`;
+      const res = await axios.post(apiUrl, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`,

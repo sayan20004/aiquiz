@@ -3,6 +3,9 @@ import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import Modal from './Modal';
 
+// Get the base URL from environment variables
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
 export default function OtpForm({ onClose, email }) {
   const [otp, setOtp] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -14,7 +17,8 @@ export default function OtpForm({ onClose, email }) {
     toast.loading('Verifying OTP...');
 
     try {
-      const res = await fetch('/api/users/verify-otp', {
+       // --- Use full URL ---
+      const res = await fetch(`${API_BASE_URL}/api/users/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, otp }),
@@ -28,9 +32,7 @@ export default function OtpForm({ onClose, email }) {
       }
 
       toast.success(data.message || 'Verification successful!');
-      
-      localStorage.setItem('userToken', data.token);
-      
+      localStorage.setItem('userToken', data.token); 
       navigate('/dashboard');
     } catch (error) {
       toast.dismiss();

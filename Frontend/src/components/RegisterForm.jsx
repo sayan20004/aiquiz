@@ -2,6 +2,9 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import Modal from './Modal';
 
+// Get the base URL from environment variables
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ''; 
+
 export default function RegisterForm({ onClose, onRegisterSuccess }) {
   const [formData, setFormData] = useState({
     firstName: '',
@@ -22,7 +25,8 @@ export default function RegisterForm({ onClose, onRegisterSuccess }) {
     toast.loading('Sending verification email...');
 
     try {
-      const res = await fetch('/api/users/register', {
+      // --- Use full URL ---
+      const res = await fetch(`${API_BASE_URL}/api/users/register`, { 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),

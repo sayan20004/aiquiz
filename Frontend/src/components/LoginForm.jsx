@@ -3,6 +3,9 @@ import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import Modal from './Modal';
 
+// Get the base URL from environment variables
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
 export default function LoginForm({ onClose }) {
   const [formData, setFormData] = useState({
     email: '',
@@ -22,7 +25,8 @@ export default function LoginForm({ onClose }) {
     toast.loading('Logging in...');
 
     try {
-      const res = await fetch('/api/users/login', {
+      // --- Use full URL ---
+      const res = await fetch(`${API_BASE_URL}/api/users/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -36,9 +40,7 @@ export default function LoginForm({ onClose }) {
       }
 
       toast.success(data.message || 'Login successful!');
-      
       localStorage.setItem('userToken', data.token);
-      
       navigate('/dashboard');
     } catch (error) {
       toast.dismiss();

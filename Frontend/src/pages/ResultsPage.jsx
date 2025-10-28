@@ -3,6 +3,9 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 
+// Get the base URL from environment variables
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
 export default function ResultsPage() {
   const { quizId } = useParams();
   const navigate = useNavigate();
@@ -20,7 +23,9 @@ export default function ResultsPage() {
       }
 
       try {
-        const res = await axios.get(`/api/quiz/${quizId}/results`, {
+        // --- Use full URL ---
+        const apiUrl = `${API_BASE_URL}/api/quiz/${quizId}/results`;
+        const res = await axios.get(apiUrl, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setResults(res.data);
@@ -41,13 +46,15 @@ export default function ResultsPage() {
   };
 
   const getOptionClass = (question, option) => {
+    if (!results?.userAnswers) return 'bg-gray-700'; // Handle case where results might be loading
+
     const isCorrect = option.isCorrect;
-    const userAnswerId = results.userAnswers[question._id];
-    const isUserAnswer = userAnswerId === option._id;
+    // Ensure question._id is a string if userAnswers keys are strings
+    const userAnswerId = results.userAnswers[question._id.toString()]; 
+    const isUserAnswer = userAnswerId === option._id.toString();
 
     if (isCorrect) return 'bg-green-800 ring-2 ring-green-500';
-    if (isUserAnswer && !isCorrect)
-      return 'bg-red-800 ring-2 ring-red-500';
+    if (isUserAnswer && !isCorrect) return 'bg-red-800 ring-2 ring-red-500';
     return 'bg-gray-700';
   };
 
@@ -63,6 +70,9 @@ export default function ResultsPage() {
     return (
       <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
         <h1 className="text-3xl">Results not found.</h1>
+         <Link to="/dashboard" className="text-indigo-400 hover:text-indigo-300 ml-4">
+            Go to Dashboard
+         </Link>
       </div>
     );
   }
@@ -107,7 +117,7 @@ export default function ResultsPage() {
 
               <button
                 onClick={() => toggleExplanation(question._id)}
-                className="text-indigo-400 text-sm font-medium"
+                className="text-indigo-400 text-sm font-medium hover:underline"
               >
                 {showExplanation[question._id]
                   ? 'Hide Explanation'
@@ -115,8 +125,8 @@ export default function ResultsPage() {
               </button>
 
               {showExplanation[question._id] && (
-                <div className="mt-3 p-4 bg-gray-700 rounded-md">
-                  <p className="text-gray-300">{question.explanation}</p>
+                <div className="mt-3 p-4 bg-gray-700 rounded-md text-gray-300">
+                   {question.explanation}
                 </div>
               )}
             </div>
