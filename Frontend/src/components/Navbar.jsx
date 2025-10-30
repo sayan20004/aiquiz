@@ -1,4 +1,6 @@
-export default function Navbar({ onRegisterClick, onLoginClick }) {
+import React from 'react'
+
+const Navbar = ({onLoginClick,onRegisterClick}) => {
   return (
     <nav className="fixed top-0 left-0 w-full bg-gray-900 bg-opacity-80 backdrop-blur-md z-50">
       <div className="container mx-auto px-6 py-4 flex justify-between items-center">
@@ -19,5 +21,7 @@ export default function Navbar({ onRegisterClick, onLoginClick }) {
         </div>
       </div>
     </nav>
-  );
+  )
 }
+
+export default Navbar
