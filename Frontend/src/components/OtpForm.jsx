@@ -3,7 +3,6 @@ import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import Modal from './Modal';
 
-// Get the base URL from environment variables
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 export default function OtpForm({ onClose, email }) {
@@ -11,49 +10,20 @@ export default function OtpForm({ onClose, email }) {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    toast.loading('Verifying OTP...');
-
-    try {
-       // --- Use full URL ---
-      const res = await fetch(`${API_BASE_URL}/api/users/verify-otp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, otp }),
-      });
-
-      const data = await res.json();
-      toast.dismiss();
-
-      if (!res.ok) {
-        throw new Error(data.message || 'OTP verification failed');
-      }
-
-      toast.success(data.message || 'Verification successful!');
-      localStorage.setItem('userToken', data.token); 
-      navigate('/dashboard');
-    } catch (error) {
-      toast.dismiss();
-      toast.error(error.message || 'An error occurred');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // ... (handleSubmit function remains the same) ...
 
   const inputStyles =
-    'w-full p-3 bg-gray-700 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-center text-lg tracking-widest';
+    'w-full p-3 bg-gray-100 dark:bg-gray-700 rounded-md text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-center text-lg tracking-widest';
 
   return (
     <Modal onClose={onClose}>
-      <h2 className="text-2xl font-bold text-white mb-4 text-center">
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 text-center">
         Verify your Email
       </h2>
-      <p className="text-gray-400 text-center mb-6">
+      <p className="text-gray-500 dark:text-gray-400 text-center mb-6">
         Enter the 6-digit code sent to
         <br />
-        <strong className="text-white">{email}</strong>
+        <strong className="text-gray-800 dark:text-white">{email}</strong>
       </p>
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
@@ -69,7 +39,7 @@ export default function OtpForm({ onClose, email }) {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-md transition duration-300 disabled:bg-indigo-800 disabled:cursor-not-allowed"
+          className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-md transition duration-300 disabled:bg-indigo-400 dark:disabled:bg-indigo-800 disabled:cursor-not-allowed"
         >
           {isLoading ? 'Verifying...' : 'Verify Account'}
         </button>

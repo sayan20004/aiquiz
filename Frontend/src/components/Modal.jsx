@@ -5,12 +5,12 @@ export default function Modal({ children, onClose }) {
       onClick={onClose}
     >
       <div
-        className="bg-gray-800 p-8 rounded-lg shadow-2xl w-full max-w-md relative"
+        className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-2xl w-full max-w-md relative"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-300 text-2xl"
+          className="absolute top-4 right-4 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-300 text-2xl"
         >
           &times;
         </button>
